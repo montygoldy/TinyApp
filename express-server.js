@@ -33,8 +33,10 @@ app.get("/urls/:id", (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+// To grab the orignal link of the shortURL
+
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = ;
+  let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
@@ -44,12 +46,24 @@ function generateRandomString(){
   return Math.random().toString(36).substring(2, 8);
 }
 
+//Post submission form and redirect to 6 digit random url page
+
 app.post("/urls", (req, res) => {
   const url = req.body;
   url.shortURL = generateRandomString();
   urlDatabase[url.shortURL] = url.longURL;
   res.redirect("urls/" + url.shortURL);
 });
+
+//Deleting drom the database
+
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
+})
+
+
+
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -11,8 +11,12 @@
       <% for ( url in urls){ %>
         <li><%= url %></li>
         <li><%= urls[url] %></li>
-      <%  } %>
     </ul>
+    <form action="/urls/<%= url %>/delete" method="post">
+        <input type="submit" value="Delete" name="delete">
+    </form>
+    <%  } %>
+
     <a href ="/">Short Me!</a>
   </body>
 </html>
