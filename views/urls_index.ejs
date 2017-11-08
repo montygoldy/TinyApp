@@ -12,11 +12,14 @@
         <li><%= url %></li>
         <li><%= urls[url] %></li>
     </ul>
+
+    <a href ="/urls/<%= url %>">Edit</a>
+
     <form action="/urls/<%= url %>/delete" method="post">
         <input type="submit" value="Delete" name="delete">
     </form>
     <%  } %>
 
-    <a href ="/">Short Me!</a>
+
   </body>
 </html>

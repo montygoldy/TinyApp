@@ -12,7 +12,10 @@
       <li><%= shortURL %></li>
 
     </ul>
-
+    <form action="/urls/<%= shortURL %>" method="post">
+      <input type="text" placeholder="updated link" name="longURL">
+      <input type="submit" value="update">
+    </form>
 
 
   </body>

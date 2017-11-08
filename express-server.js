@@ -55,14 +55,22 @@ app.post("/urls", (req, res) => {
   res.redirect("urls/" + url.shortURL);
 });
 
-//Deleting drom the database
+//Deleting links from the database
 
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
-})
+});
 
+//Editing links
 
+app.post("/urls/:id", (req, res) => {
+  let url = req.body;
+  console.log(url);
+  urlDatabase[req.params.id] = url.longURL;
+  res.redirect("/urls");
+
+});
 
 
 app.listen(PORT, () => {
