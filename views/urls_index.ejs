@@ -1,0 +1,18 @@
+<!DOCTYPE Html>
+<html>
+  <head>
+    <title>TinyApp</title>
+  </head>
+  <body>
+
+    <% include partials/_header %>
+
+    <ul>
+      <% for ( url in urls){ %>
+        <li><%= url %></li>
+        <li><%= urls[url] %></li>
+      <%  } %>
+    </ul>
+    <a href ="/">Short Me!</a>
+  </body>
+</html>
