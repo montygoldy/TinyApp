@@ -67,7 +67,11 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {user: req.cookies["user_id"]}
-  res.render("urls_new", templateVars);
+  if(req.cookies["user_id"]){
+    res.render("urls_new", templateVars);
+  } else{
+    res.redirect("/login");
+  }
 });
 
 // Route to check the longurl of th shorturl
@@ -121,9 +125,6 @@ app.post("/login", (req, res) => {
   let found = false;
 
   for(userId in users){
-
-    console.log(userpassword);
-    console.log(users[userId].password);
     if(useremail === users[userId].email && userpassword === users[userId].password){
       found = true;
     }
@@ -133,7 +134,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id");
     res.redirect("/urls");
   } else{
-    res.status(403).send("Email and password doesnot match!!! Try Again");
+    res.statusCode(400).send("Email and password not matching!!! Try Again");
   }
 });
 
@@ -168,14 +169,13 @@ app.post("/register", (req, res) => {
   for(let userId in users){
     if(useremail === users[userId].email){
       res.redirect("/register");
-
     }
   }
 
   // Error handling for empty inputs
 
   if(!useremail || !userpassword ){
-    res.redirect("/register");
+    res.status(400).send("Please enter username and password!!");
   } else{
     users[userId] = {
       id: userId,
@@ -184,8 +184,7 @@ app.post("/register", (req, res) => {
     };
 
     res.cookie("user_id", users[userId]);
-    res.status(403).send("Please enter username and password");
-
+    res.redirect("/urls");
   }
 })
 
