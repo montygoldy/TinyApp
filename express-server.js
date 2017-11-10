@@ -2,7 +2,10 @@ const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt');
+
 const PORT = process.env.PORT || 8080;
+
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -136,7 +139,7 @@ app.post("/login", (req, res) => {
   let found = false;
 
   for(userId in users){
-    if(useremail === users[userId].email && userpassword === users[userId].password){
+    if(useremail === users[userId].email && bcrypt.compareSync(userpassword, users[userId].password)){
       found = true;
     }
   }
@@ -172,14 +175,15 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let useremail = req.body.email;
-  let userpassword = req.body.password;
+  let userpassword = bcrypt.hashSync(req.body.password, 10);
+  console.log(userpassword);
   let userId = generateRandomString();
 
   // to check if email is already registered
 
   for(let userId in users){
     if(useremail === users[userId].email){
-      res.redirect("/register");
+      res.redirect("/login");
     }
   }
 
