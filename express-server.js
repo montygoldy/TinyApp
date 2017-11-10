@@ -12,8 +12,12 @@ app.use(cookieParser());
 // URL database
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+ "b2xVn2": { longURL:"http://www.lighthouselabs.ca",
+              userId: "userRandomID3"
+              },
+ "9sm5xK": { longURL: "http://www.google.com",
+              userId: "userRandomID3"
+              }
 }
 
 //User  database
@@ -66,7 +70,8 @@ app.get("/urls", (req, res) => {
 // Route for creating new url
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = {user: req.cookies["user_id"]}
+  let templateVars = {user: req.cookies["user_id"],
+                      longURL: urlDatabase[req.params.id]}
   if(req.cookies["user_id"]){
     res.render("urls_new", templateVars);
   } else{
@@ -74,11 +79,11 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// Route to check the longurl of th shorturl
+// Route to check the longurl of the shorturl
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
-                       longURL: urlDatabase[req.params.id],
+                       longURL: urlDatabase[req.params.id].longURL,
                        user: req.cookies["user_id"]
                      }
   res.render('urls_show', templateVars);
@@ -87,7 +92,7 @@ app.get("/urls/:id", (req, res) => {
 // To grab the orignal link of the shortURL
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -97,24 +102,30 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const url = req.body;
   url.shortURL = generateRandomString();
-  urlDatabase[url.shortURL] = url.longURL;
+  urlDatabase[url.shortURL] = {longURL: url.longURL,
+                                userId: req.cookies["user_id"].id
+                              };
   res.redirect("urls/" + url.shortURL);
 });
 
 //Deleting links from the database
 
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
+  if(req.cookies["user_id"].id === urlDatabase[req.params.id].userId){
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  }
 });
 
 //Editing links
 
 app.post("/urls/:id", (req, res) => {
-  shortURL = req.params.id
-  let url = req.body;
-  urlDatabase[req.params.id] = url.longURL;
-  res.redirect( shortURL);
+  if(req.cookies["user_id"].id === urlDatabase[req.params.id].userId){
+    shortURL = req.params.id
+    let url = req.body;
+    urlDatabase[req.params.id].longURL = url.longURL;
+    res.redirect( shortURL);
+  }
 });
 
 // Login Route
@@ -134,7 +145,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id");
     res.redirect("/urls");
   } else{
-    res.statusCode(400).send("Email and password not matching!!! Try Again");
+    res.status(400).send("Email and password not matching!!! Try Again");
   }
 });
 
