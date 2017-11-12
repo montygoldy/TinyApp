@@ -1,12 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head></head>
-  <body style="font-size:20px; padding:50px;">
-    <% include partials/_header %>
-    <form action="/urls" method="POST" style="margin:150px;">
-      <label for="longURL">Enter a URL:</label>
-      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
-      <input type="submit" value="Submit">
-    </form>
-  </body>
-</html>
+  <% include partials/_head %>
+  <% include partials/_header %>
+
+  <!-- Contact -->
+    <section id="contact">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center ">
+            <h3 class="section-heading">Please enter the URL to make a tiny url</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 ">
+            <form id="contactForm" name="sentMessage" method="POST" action="/urls" novalidate>
+              <div class="row">
+                <div class="col-md-6 col-center-block text-center">
+                  <div class="form-group">
+                    <input type="text" name="longURL" placeholder="Enter the URL" required>
+                    <p class="help-block text-danger"></p>
+                  </div>
+
+
+                <div class="clearfix"></div>
+                <div class="col-lg-12 text-center">
+                  <div id="success"></div>
+                  <button id="sendMessageButton" class="btn btn-primary btn-xl text-uppercase" type="submit">Short Me!</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+  <% include partials/_footer %>

@@ -8,7 +8,11 @@ const PORT = process.env.PORT || 8080;
 
 
 app.set("view engine", "ejs");
+
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(express.static(__dirname + '/public'));
+
 
 app.use(cookieSession({
   name: 'session',
@@ -52,6 +56,18 @@ function generateRandomString(){
   return Math.random().toString(36).substring(2, 8);
 }
 
+
+// function for urls for user
+
+function urlsForUser(id){
+  let userUrl = {};
+  for(let url_Id in urlDatabase){
+    if(urlDatabase[url_Id].userId === id){
+      userUrl[url_Id] = urlDatabase[url_Id];
+    }
+  } return userUrl;
+}
+
 // Rendering the default page to urls new page
 
 app.get('/', (req, res) => {
@@ -67,10 +83,14 @@ app.get('/urls.json', (req, res) => {
 // Rendering all the urls
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase,
-                       user: req.session.user_id
-                     };
-  res.render("urls_index", templateVars);
+  if(req.session.user_id){
+    let templateVars = { urls: urlsForUser(req.session.user_id),
+                         user: req.session.user_id
+                       };
+    res.render("urls_index", templateVars);
+  } else{
+    res.send("error");
+  }
 });
 
 // Route for creating new url
@@ -81,7 +101,7 @@ app.get("/urls/new", (req, res) => {
   if(req.session.user_id){
     res.render("urls_new", templateVars);
   } else{
-    res.redirect("/login");
+    res.redirect("/register");
   }
 });
 
@@ -91,6 +111,7 @@ app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
                        longURL: urlDatabase[req.params.id].longURL,
                        user: req.session.user_id
+
                      }
   res.render('urls_show', templateVars);
 });
@@ -109,7 +130,7 @@ app.post("/urls", (req, res) => {
   const url = req.body;
   url.shortURL = generateRandomString();
   urlDatabase[url.shortURL] = {longURL: url.longURL,
-                                userId: req.session.user_id.id
+                                userId: req.session.user_id
                               };
   res.redirect("urls/" + url.shortURL);
 });
@@ -117,20 +138,24 @@ app.post("/urls", (req, res) => {
 //Deleting links from the database
 
 app.post("/urls/:id/delete", (req, res) => {
-  if(req.session.user_id.id === urlDatabase[req.params.id].userId){
+  if(req.session.user_id === urlDatabase[req.params.id].userId){
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
+  } else{
+    res.redirect("/login");
   }
 });
 
 //Editing links
 
 app.post("/urls/:id", (req, res) => {
-  if(req.session.user_id.id === urlDatabase[req.params.id].userId){
+  if(req.session.user_id === urlDatabase[req.params.id].userId){
     shortURL = req.params.id
     let url = req.body;
     urlDatabase[req.params.id].longURL = url.longURL;
     res.redirect( shortURL);
+  } else{
+    res.send("You cannot edit other user links");
   }
 });
 
@@ -141,15 +166,19 @@ app.post("/login", (req, res) => {
   let userpassword = req.body.password;
   let found = false;
 
-  for(userId in users){
+  for(let userId in users){
     if(useremail === users[userId].email && bcrypt.compareSync(userpassword, users[userId].password)){
+      userid =  users[userId].id;
       found = true;
     }
+
   }
 
+
+
   if(found){
-    req.session.user_id ;
-    res.redirect("/urls");
+    req.session.user_id =  userid;
+    res.redirect("/urls/new");
   } else{
     res.status(400).send("Email and password not matching!!! Try Again");
   }
@@ -165,8 +194,8 @@ app.get("/login", (req, res) => {
 // Logout route
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("/urls");
+  req.session.user_id = null;
+  res.redirect("/urls/new");
 });
 
 // Register new user
@@ -179,14 +208,14 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let useremail = req.body.email;
   let userpassword = bcrypt.hashSync(req.body.password, 10);
-  console.log(userpassword);
+
   let userId = generateRandomString();
 
   // to check if email is already registered
 
   for(let userId in users){
     if(useremail === users[userId].email){
-      res.redirect("/login");
+      return res.redirect("/login");
     }
   }
 
@@ -200,9 +229,8 @@ app.post("/register", (req, res) => {
       email: useremail,
       password: userpassword
     };
-    console.log(users);
-    req.session.user_id = "users[userId]";
-    res.redirect("/urls");
+    req.session.user_id = users[userId].id;
+    res.redirect("/urls/new");
   }
 })
 

@@ -1,25 +1,50 @@
-<!DOCTYPE Html>
-<html>
-  <head>
-    <title>TinyApp</title>
-  </head>
-  <body>
+  <% include partials/_head %>
+  <% include partials/_header %>
 
-    <% include partials/_header %>
+  <section id="portfolio">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading text-uppercase" style="color:#fff;margin-bottom:0!important">USER LINKS</h2>
+            <h3 class="section-subheading text-muted" style="margin-bottom:36px!important">All the short url's created by the User.</h3>
+          </div>
+        </div>
 
-    <ul>
-      <% for ( url in urls){ %>
-        <li><%= url %></li>
-        <li><%= urls[url].longURL %></li>
-    </ul>
+        <div class="row">
+          <% for ( url in urls){ %>
+          <div class="col-md-4 col-sm-6 portfolio-item" >
 
-    <a href ="/urls/<%= url %>">Edit</a>
-
-    <form action="/urls/<%= url %>/delete" method="post">
-        <input type="submit" value="Delete" name="delete">
-    </form>
-    <%  } %>
+            <div class="portfolio-caption" style="height:200px;">
+              <h3 class="text-center"><%= url %></h3>
+              <p class="text-muted text-center my-text" style="font-size:24px" ><span class="new_link" style="font-size:14px !important;">Orignal Link: </span><br><%= urls[url].longURL %></p>
 
 
-  </body>
-</html>
+                <div class="row">
+
+                   <div class="col-md-3 text-center" style="max-width:40% !important">
+                    <form id="contactForm" name="sentMessage" action="/urls/<%= url %>" >
+                       <button id="sendMessageButton" class="btn btn-primary text-uppercase" type="submit" name="longURL"><i class="fa fa-pencil" aria-hidden="true"></i> Update</button>
+                    </form>
+                  </div>
+
+
+                <div class="col-md-3 col-center-block text-center">
+                  <form action="/urls/<%= url %>/delete" method="post">
+                    <button id="sendMessageButton" class="btn btn-secondary text-uppercase" type="submit"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                  </form>
+                </div>
+
+              </div>
+
+            </div>
+
+
+          </div>
+        <%  } %>
+        </div>
+      </div>
+    </section>
+
+
+
+  <% include partials/_footer %>
