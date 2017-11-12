@@ -1,23 +1,24 @@
-TinyApp
+# TinyApp
 
 A URL shortening service built with Node.js, Express, and EJS. This project is coursework from Lighthouse Labs.
 
-Installation
+## Installation
 
 Clone this repository and npm install inside of the project directory.
 
-Run
+## Run
 
 node express_server.js will launch the app on your environment's default port, or port 8080 if none is set.
 
 
-Dependencies
+## Dependencies
 
-bcrypt
-body-parser
-cookie-session
-ejs
-express
+- Node Js
+- bcrypt
+- body-parser
+- cookie-session
+- ejs
+- express
 
 Screenshots
 

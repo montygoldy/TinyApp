@@ -71,7 +71,7 @@ function urlsForUser(id){
 // Rendering the default page to urls new page
 
 app.get('/', (req, res) => {
-    res.redirect('/urls/new');
+    res.redirect('/register');
 })
 
 //Check to see the json render of the database
@@ -89,7 +89,7 @@ app.get("/urls", (req, res) => {
                        };
     res.render("urls_index", templateVars);
   } else{
-    res.send("error");
+    res.status(401).send('Please Login/Register to view the content  <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
   }
 });
 
@@ -101,7 +101,8 @@ app.get("/urls/new", (req, res) => {
   if(req.session.user_id){
     res.render("urls_new", templateVars);
   } else{
-    res.redirect("/register");
+        res.status(401).send('Please Login/Register to view the content  <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
+
   }
 });
 
@@ -124,7 +125,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-//Post submission form and redirect to 6 digit random url page
+//Create url and redirect to 6 digit random url page
 
 app.post("/urls", (req, res) => {
   const url = req.body;
@@ -142,7 +143,7 @@ app.post("/urls/:id/delete", (req, res) => {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
   } else{
-    res.redirect("/login");
+    res.status(403).send('You are not allowed to delete this. PLease login <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
   }
 });
 
@@ -150,12 +151,12 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id].userId){
-    shortURL = req.params.id
+    shortURL = req.params.id;
     let url = req.body;
-    urlDatabase[req.params.id].longURL = url.longURL;
+    urlDatabase[shortURL].longURL = url.longURL;
     res.redirect( shortURL);
   } else{
-    res.send("You cannot edit other user links");
+    res.status(401).send("You cannot edit other user links");
   }
 });
 
@@ -180,7 +181,7 @@ app.post("/login", (req, res) => {
     req.session.user_id =  userid;
     res.redirect("/urls/new");
   } else{
-    res.status(400).send("Email and password not matching!!! Try Again");
+    res.status(400).send('Email and password not matching!!! Try Again <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
   }
 });
 
