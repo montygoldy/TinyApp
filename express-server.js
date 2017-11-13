@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 
 const PORT = process.env.PORT || 8080;
 
@@ -12,7 +13,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(express.static(__dirname + '/public'));
-
+app.use(methodOverride('_method'));
 
 app.use(cookieSession({
   name: 'session',
@@ -85,7 +86,8 @@ app.get('/urls.json', (req, res) => {
 app.get("/urls", (req, res) => {
   if(req.session.user_id){
     let templateVars = { urls: urlsForUser(req.session.user_id),
-                         user: req.session.user_id
+                         user: users[req.session.user_id],
+                         longURL: urlsForUser(req.session.user_id).longURL
                        };
     res.render("urls_index", templateVars);
   } else{
@@ -121,6 +123,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL].longURL;
+  console.log(longURL);
   res.redirect(longURL);
 });
 
@@ -138,7 +141,7 @@ app.post("/urls", (req, res) => {
 
 //Deleting links from the database
 
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id].userId){
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
@@ -149,7 +152,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //Editing links
 
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id].userId){
     shortURL = req.params.id;
     let url = req.body;
