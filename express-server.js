@@ -103,7 +103,12 @@ app.post("/urls", (req, res) => {
     unique: 0,
     visits: 0
   };
-  res.redirect("urls/" + url.shortURL);
+  if (urlDatabase[url.shortURL].longURL.startsWith("http://")){
+    res.redirect("urls/" + url.shortURL);
+  } else{
+    res.status(401).send('Please enter full url like this http://wwww.example.com <a href="/urls/new">Go Back</a>');
+  }
+
 });
 
 //Deleting links from the database
@@ -123,11 +128,15 @@ app.put("/urls/:id", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.id].userId) {
     shortURL = req.params.id;
     let url = req.body;
-    urlDatabase[shortURL].longURL = url.longURL;
-    res.redirect(shortURL);
+    if (url.longURL.startsWith("http://")){
+      urlDatabase[shortURL].longURL = url.longURL;
+      res.redirect(shortURL);
+    } else{
+      res.status(401).send('Please enter full url like this http://wwww.example.com <a href="/urls">Go Back</a>');
+    }
   } else {
-    res.status(401).send("You cannot edit other user links");
-  }
+      res.status(401).send("You cannot edit other user links");
+    }
 });
 
 // Login Route
