@@ -95,15 +95,16 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const url = req.body;
-  url.shortURL = generateRandomString();
-  urlDatabase[url.shortURL] = {
+
+  if (url.longURL.startsWith("http://")){
+   url.shortURL = generateRandomString();
+   urlDatabase[url.shortURL] = {
     longURL: url.longURL,
     userId: req.session.user_id,
     date: new Date().toDateString(),
     unique: 0,
     visits: 0
   };
-  if (urlDatabase[url.shortURL].longURL.startsWith("http://")){
     res.redirect("urls/" + url.shortURL);
   } else{
     res.status(401).send('Please enter full url like this http://wwww.example.com <a href="/urls/new">Go Back</a>');
