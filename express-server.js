@@ -72,19 +72,22 @@ app.get("/urls/new", (req, res) => {
 // Route to check the longurl of the shorturl
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = {
-    shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
-    user: req.session.user_id
-  };
-  res.render('urls_show', templateVars);
+  if(req.session.user_id === urlDatabase[req.params.id].userId){
+    let templateVars = {
+      shortURL: req.params.id,
+      longURL: urlDatabase[req.params.id].longURL,
+      user: req.session.user_id
+    };
+    res.render('urls_show', templateVars);
+  } else{
+    res.status(401).send('Please Login/Register to view the content  <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
+  }
 });
 
 // To grab the orignal link of the shortURL
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL].longURL;
-  console.log(longURL);
   res.redirect(longURL);
 });
 
@@ -95,7 +98,10 @@ app.post("/urls", (req, res) => {
   url.shortURL = generateRandomString();
   urlDatabase[url.shortURL] = {
     longURL: url.longURL,
-    userId: req.session.user_id
+    userId: req.session.user_id,
+    date: new Date().toDateString(),
+    unique: 0,
+    visits: 0
   };
   res.redirect("urls/" + url.shortURL);
 });
@@ -175,7 +181,7 @@ app.post("/register", (req, res) => {
 
   for (let userId in users) {
     if (useremail === users[userId].email) {
-      return res.redirect("/login");
+    res.status(403).send('Email is already registered. Please login <a class="nav-link js-scroll-trigger" href="/login">Login</a>');
     }
   }
 
